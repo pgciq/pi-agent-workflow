@@ -57,6 +57,14 @@ pi -e D:/dev/proj/repos/pi-agent-workflow/extensions/pi-workflow.ts
 
 其它项目可以直接复制 `examples/example.ts` 到自己的 `.pi/workflows/`，然后替换 `Job`、`Result`、`loadJobs`、`buildPrompt`、`parseResponse` 和 `applyResults`。
 
+GESP 真实集成测试 Spec 位于：
+
+```text
+test/gesp-real-integration.workflow.ts
+```
+
+它只读取同级 `gesp-exam-prep/data/raw/cpp-l1-202609.json` 的 3 道题，使用真实 child AgentSession 校验解析结果，不写回题库。应在当前 Pi 会话中通过 `workflow_run` 调用，避免脱离 Pi TUI 后丢失活动模型上下文。
+
 当前还没有把 GESP Spec 放入本目录，也没有连接 `gesp-exam-prep`。
 
 ## WorkflowSpec 最小形式

@@ -50,7 +50,9 @@
 - [x] 添加基础 Runner dry-run/lock/side-effect 测试
 - [x] 添加 TypeScript `npm run check`
 - [x] 添加可选真实 child AgentSession 集成测试（`PI_WORKFLOW_INTEGRATION=1`）
-- [ ] 在配置了模型凭据的环境中执行真实集成测试
+- [x] 添加 GESP 集成 Workflow Spec（`test/gesp-real-integration.workflow.ts`）
+- [x] 通过当前 Pi 会话完成 GESP 真实 child AgentSession 测试
+- [ ] 在独立 CI 环境中执行真实集成测试
 
 
 
