@@ -41,10 +41,12 @@
     "examples",
     "README.md",
     "PLAN.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
   "scripts": {
     "check": "tsc --noEmit",
+    "test": "node --test test/runner.test.ts",
     "pack:check": "npm pack --dry-run"
   },
   "devDependencies": {

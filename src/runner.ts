@@ -262,6 +262,7 @@ export async function runWorkflow<TJob, TResult>(
 
   try {
     const jobs = await spec.loadJobs(ctx, args);
+    const previousState = options.resumeRunId ? await readRunState(ctx.cwd, options.resumeRunId) : undefined;
     const batchSize = Math.max(1, options.batchSize ?? spec.batchSize ?? DEFAULT_BATCH_SIZE);
     const concurrency = Math.max(1, Math.min(16, options.concurrency ?? spec.concurrency ?? DEFAULT_CONCURRENCY));
     const retries = Math.max(0, Math.min(10, options.retries ?? spec.retries ?? DEFAULT_RETRIES));
@@ -284,6 +285,7 @@ export async function runWorkflow<TJob, TResult>(
         attempt: 0,
         questionCount: batch.length,
       })),
+      specPath: options.specPath,
     };
 
     const resultRecords: Map<number, TResult[]> = options.resumeRunId
@@ -302,6 +304,18 @@ export async function runWorkflow<TJob, TResult>(
       state.completedBatches += 1;
     }
 
+    if (options.onlyBatches && options.onlyBatches.length > 0) {
+      const selected = new Set(options.onlyBatches);
+      for (let index = 0; index < state.jobs.length; index += 1) {
+        if (resultRecords.has(index) || selected.has(index)) continue;
+        const job = state.jobs[index];
+        const previousJob = previousState?.jobs[index];
+        job.status = previousJob?.status === "cancelled" ? "cancelled" : "failed";
+        job.error = "not selected by single-batch retry";
+        state.failedBatches += 1;
+      }
+    }
+
     await enqueueState(ctx, active, state);
     render(ctx, state);
     if (options.dryRun) {
@@ -316,7 +330,10 @@ export async function runWorkflow<TJob, TResult>(
     }
 
     const runtime = await ModelRuntime.create();
-    const pending = batches.map((_, index) => index).filter((index) => !resultRecords.has(index));
+    const selectedBatches = options.onlyBatches ? new Set(options.onlyBatches) : undefined;
+    const pending = batches
+      .map((_, index) => index)
+      .filter((index) => !resultRecords.has(index) && (!selectedBatches || selectedBatches.has(index)));
     let next = 0;
     const workers = Array.from({ length: Math.min(concurrency, Math.max(1, pending.length)) }, async () => {
       while (true) {
@@ -389,8 +406,11 @@ export async function runWorkflow<TJob, TResult>(
         }
       }
       state.status = "cancelled";
-    } else if (state.failedBatches > 0) {
+    } else if (state.failedBatches > 0 || state.completedBatches < state.totalBatches) {
       state.status = "failed";
+      if (state.completedBatches < state.totalBatches) {
+        state.failedBatches = Math.max(state.failedBatches, state.totalBatches - state.completedBatches);
+      }
     } else {
       await spec.applyResults(results, ctx, args);
       state.status = "completed";

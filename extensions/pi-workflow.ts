@@ -110,6 +110,33 @@ export default function piWorkflow(pi: ExtensionAPI) {
     },
   });
 
+  pi.registerCommand("workflow-retry", {
+    description: "Retry one failed batch: /workflow-retry <runId> <batchId>",
+    handler: async (args, ctx) => {
+      const [runId, batchId] = args.trim().split(/\s+/).filter(Boolean);
+      if (!runId || !batchId) {
+        notify(ctx, "用法：/workflow-retry <runId> <batchId>", "warning");
+        return;
+      }
+      const previous = await readRunState(ctx.cwd, runId);
+      if (!previous.specPath) {
+        throw new Error("该运行没有记录 specPath，无法自动重试；请使用 /workflow-run --resume 手动指定 Spec");
+      }
+      const job = previous.jobs.find((item) => item.jobId === batchId);
+      if (!job) throw new Error(`找不到 batch：${batchId}`);
+      if (job.status !== "failed" && job.status !== "cancelled") {
+        throw new Error(`${batchId} 当前状态为 ${job.status}，只有 failed/cancelled batch 可以重试`);
+      }
+      const spec = await loadSpec(ctx.cwd, previous.specPath);
+      const state = await runWorkflow(pi, ctx, spec, previous.args, {
+        resumeRunId: runId,
+        onlyBatches: [job.batchIndex],
+        specPath: previous.specPath,
+      });
+      notify(ctx, `Retry ${batchId}: ${state.status}, new run=${state.runId}`, state.status === "completed" ? "info" : "warning");
+    },
+  });
+
   pi.registerTool({
     name: "workflow_run",
     label: "Run Workflow",

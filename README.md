@@ -50,6 +50,7 @@ pi -e D:/dev/proj/repos/pi-agent-workflow/extensions/pi-workflow.ts
 /workflow-status
 /workflow-status <runId>
 /workflow-cancel <runId>
+/workflow-retry <runId> <batchId>
 ```
 
 其它项目可以直接复制 `examples/example.ts` 到自己的 `.pi/workflows/`，然后替换 `Job`、`Result`、`loadJobs`、`buildPrompt`、`parseResponse` 和 `applyResults`。
@@ -101,6 +102,7 @@ export default workflow;
 ```text
 .pi/workflow-runs/<runId>/
 ├── state.json
+├── results.jsonl
 └── events.jsonl
 ```
 

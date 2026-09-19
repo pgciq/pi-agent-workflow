@@ -34,6 +34,10 @@ export type WorkflowRunOptions = {
   resumeRunId?: string;
   /** Remove an existing workflow lock before starting. */
   force?: boolean;
+  /** Retry only these batch indexes when resuming a run. */
+  onlyBatches?: number[];
+  /** Spec path used to recreate a run from /workflow-retry. */
+  specPath?: string;
   dryRun?: boolean;
 };
 
@@ -64,4 +68,5 @@ export type WorkflowRunState = {
   failedBatches: number;
   jobs: WorkflowJobState[];
   resumedFrom?: string;
+  specPath?: string;
 };

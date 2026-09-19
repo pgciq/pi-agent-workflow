@@ -33,7 +33,7 @@
 - [ ] 增加运行详情视图
 - [x] 显示尝试次数、耗时、结果数量
 - [ ] 增加 `/workflow-events <runId>`
-- [ ] 增加 `/workflow-retry <runId> [batchId]`
+- [x] 增加 `/workflow-retry <runId> <batchId>`
 - [ ] 可选保存完整 child session，默认仍使用 in-memory
 - [x] 只显示模型输出预览，不显示隐藏思维过程
 
@@ -45,7 +45,12 @@
 - [ ] 验证 Spec 不反向依赖 GESP Extension
 - [ ] 当前 `gesp-exam-prep` 在确认迁移前保持不动
 
-## 阶段 5：用户级安装
+## 阶段 5：测试与用户级安装
+
+- [x] 添加基础 Runner dry-run/lock/side-effect 测试
+- [x] 添加 TypeScript `npm run check`
+
+
 
 推荐方式：
 
