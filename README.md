@@ -102,3 +102,37 @@ export default workflow;
 ```
 
 `events.jsonl` 只记录生命周期和错误元数据，不记录模型隐藏思维过程。
+
+## GitHub / npm
+
+项目地址：
+
+```text
+https://github.com/pgciq/pi-agent-workflow
+```
+
+npm 包名：
+
+```text
+pi-agent-workflow
+```
+
+安装到 Pi：
+
+```bash
+pi install npm:pi-agent-workflow
+```
+
+本地开发版本：
+
+```bash
+pi -e D:/dev/proj/repos/pi-workflow/extensions/pi-workflow.ts
+```
+
+自动发布 Workflow：
+
+```text
+.github/workflows/publish.yml
+```
+
+发布需要在 GitHub 仓库配置 `NPM_TOKEN` Secret。
