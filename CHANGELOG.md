@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1
+
+- Use Node 24 and the current npm Trusted Publishing workflow.
+- Disable package-manager caching in release builds.
+
 ## 0.2.0
 
 - Add per-workflow lock files.
