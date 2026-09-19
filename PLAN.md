@@ -49,7 +49,8 @@
 
 - [x] 添加基础 Runner dry-run/lock/side-effect 测试
 - [x] 添加 TypeScript `npm run check`
-- [ ] 添加真实 child AgentSession 的集成测试
+- [x] 添加可选真实 child AgentSession 集成测试（`PI_WORKFLOW_INTEGRATION=1`）
+- [ ] 在配置了模型凭据的环境中执行真实集成测试
 
 
 

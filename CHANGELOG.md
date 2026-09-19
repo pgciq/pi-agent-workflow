@@ -11,6 +11,7 @@
 - Add `/workflow-retry <runId> <batchId>`.
 - Add `/workflow-events <runId> [limit]`.
 - Add optional persisted child sessions with `--persist-sessions`.
+- Add opt-in real child AgentSession integration test (`PI_WORKFLOW_INTEGRATION=1`).
 - Add basic Runner tests and `npm run check`.
 - Improve live batch status rendering.
 

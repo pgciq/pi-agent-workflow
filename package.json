@@ -46,7 +46,7 @@
   ],
   "scripts": {
     "check": "tsc --noEmit",
-    "test": "node --test test/runner.test.ts",
+    "test": "node --test test/runner.test.ts test/integration.test.ts",
     "pack:check": "npm pack --dry-run"
   },
   "devDependencies": {
