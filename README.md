@@ -23,13 +23,13 @@ examples/example.ts
 在任意项目中：
 
 ```bash
-pi -e D:/dev/proj/repos/pi-workflow/extensions/pi-workflow.ts
+pi -e D:/dev/proj/repos/pi-agent-workflow/extensions/pi-workflow.ts
 ```
 
 运行示例：
 
 ```text
-/workflow-run D:/dev/proj/repos/pi-workflow/examples/example.ts 9
+/workflow-run D:/dev/proj/repos/pi-agent-workflow/examples/example.ts 9
 ```
 
 示例会创建 9 个 demo job，每 3 个 job 交给一个子 Agent，并将结果写入当前项目：
@@ -56,7 +56,7 @@ pi -e D:/dev/proj/repos/pi-workflow/extensions/pi-workflow.ts
 ## WorkflowSpec 最小形式
 
 ```typescript
-import type { WorkflowSpec } from "../../pi-workflow/src/types.ts";
+import type { WorkflowSpec } from "pi-agent-workflow/src/types.ts";
 
 type Job = { id: string; text: string };
 type Result = { id: string; value: string };
@@ -126,7 +126,7 @@ pi install npm:pi-agent-workflow
 本地开发版本：
 
 ```bash
-pi -e D:/dev/proj/repos/pi-workflow/extensions/pi-workflow.ts
+pi -e D:/dev/proj/repos/pi-agent-workflow/extensions/pi-workflow.ts
 ```
 
 自动发布 Workflow：

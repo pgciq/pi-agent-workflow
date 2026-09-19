@@ -1,4 +1,4 @@
-# pi-workflow 实现计划
+# pi-agent-workflow 实现计划
 
 ## 阶段 1：通用 Runner 骨架（已完成）
 
@@ -57,7 +57,7 @@
 候选安装方式：
 
 ```bash
-pi install -l D:/dev/proj/repos/pi-workflow
+pi install -l D:/dev/proj/repos/pi-agent-workflow
 ```
 
 安装命令需要结合当前 Pi 版本实际验证；在正式安装前优先使用 `pi -e` 测试。
