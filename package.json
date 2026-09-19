@@ -8,7 +8,7 @@
   "author": "Gary Pan <pgciq@126.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pgciq/pi-agent-workflow.git"
+    "url": "git+https://github.com/pgciq/pi-agent-workflow.git"
   },
   "homepage": "https://github.com/pgciq/pi-agent-workflow#readme",
   "bugs": {
@@ -31,7 +31,9 @@
     "typebox": "^1.3.34"
   },
   "pi": {
-    "extensions": ["./extensions/pi-workflow.ts"]
+    "extensions": [
+      "./extensions/pi-workflow.ts"
+    ]
   },
   "files": [
     "extensions",
