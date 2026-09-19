@@ -46,11 +46,13 @@ pi -e D:/dev/proj/repos/pi-agent-workflow/extensions/pi-workflow.ts
 /workflow-run .pi/workflows/example.ts 202609 --timeout 3600000
 /workflow-run .pi/workflows/example.ts 202609 --resume <runId>
 /workflow-run .pi/workflows/example.ts 202609 --force
+/workflow-run .pi/workflows/example.ts 202609 --persist-sessions
 /workflow-run .pi/workflows/example.ts 202609 --dry-run
 /workflow-status
 /workflow-status <runId>
 /workflow-cancel <runId>
 /workflow-retry <runId> <batchId>
+/workflow-events <runId> [limit]
 ```
 
 其它项目可以直接复制 `examples/example.ts` 到自己的 `.pi/workflows/`，然后替换 `Job`、`Result`、`loadJobs`、`buildPrompt`、`parseResponse` 和 `applyResults`。
@@ -103,7 +105,8 @@ export default workflow;
 .pi/workflow-runs/<runId>/
 ├── state.json
 ├── results.jsonl
-└── events.jsonl
+├── events.jsonl
+└── sessions/              # only with --persist-sessions
 ```
 
 `events.jsonl` 只记录生命周期和错误元数据，不记录模型隐藏思维过程。

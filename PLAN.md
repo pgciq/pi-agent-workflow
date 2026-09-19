@@ -30,11 +30,11 @@
 ## 阶段 3：监控体验
 
 - [x] Widget 优先显示当前运行和最近活动 batch
-- [ ] 增加运行详情视图
+- [x] 增加运行详情视图（`/workflow-status <runId>`）
 - [x] 显示尝试次数、耗时、结果数量
-- [ ] 增加 `/workflow-events <runId>`
+- [x] 增加 `/workflow-events <runId>`
 - [x] 增加 `/workflow-retry <runId> <batchId>`
-- [ ] 可选保存完整 child session，默认仍使用 in-memory
+- [x] 可选保存完整 child session（`--persist-sessions`），默认仍使用 in-memory
 - [x] 只显示模型输出预览，不显示隐藏思维过程
 
 ## 阶段 4：项目适配
@@ -49,6 +49,7 @@
 
 - [x] 添加基础 Runner dry-run/lock/side-effect 测试
 - [x] 添加 TypeScript `npm run check`
+- [ ] 添加真实 child AgentSession 的集成测试
 
 
 

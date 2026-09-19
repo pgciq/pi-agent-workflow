@@ -38,6 +38,8 @@ export type WorkflowRunOptions = {
   onlyBatches?: number[];
   /** Spec path used to recreate a run from /workflow-retry. */
   specPath?: string;
+  /** Persist each child session under the run directory for debugging. */
+  persistSessions?: boolean;
   dryRun?: boolean;
 };
 
@@ -53,6 +55,7 @@ export type WorkflowJobState = {
   lastEvent?: string;
   preview?: string;
   resultCount?: number;
+  childSessionFile?: string;
   error?: string;
 };
 
@@ -69,4 +72,5 @@ export type WorkflowRunState = {
   jobs: WorkflowJobState[];
   resumedFrom?: string;
   specPath?: string;
+  persistSessions?: boolean;
 };

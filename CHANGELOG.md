@@ -9,6 +9,8 @@
 - Add optional global timeout with `--timeout`.
 - Add exponential retry backoff with jitter.
 - Add `/workflow-retry <runId> <batchId>`.
+- Add `/workflow-events <runId> [limit]`.
+- Add optional persisted child sessions with `--persist-sessions`.
 - Add basic Runner tests and `npm run check`.
 - Improve live batch status rendering.
 

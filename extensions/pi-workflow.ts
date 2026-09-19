@@ -3,7 +3,7 @@ import { pathToFileURL } from "node:url";
 import { join, resolve } from "node:path";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
-import { activeRuns, cancelWorkflow, readRunState, runWorkflow } from "../src/runner.ts";
+import { cancelWorkflow, readRunEvents, readRunState, runWorkflow } from "../src/runner.ts";
 import type { WorkflowArgs, WorkflowRunOptions, WorkflowSpec } from "../src/types.ts";
 
 type ParsedCommand = {
@@ -27,8 +27,10 @@ function parseCommand(raw: string): ParsedCommand {
     else if (token === "--timeout" && tokens[i + 1]) options.timeoutMs = Math.max(0, Number(tokens[++i]) || 0);
     else if (token === "--resume" && tokens[i + 1]) options.resumeRunId = tokens[++i];
     else if (token === "--force") options.force = true;
+    else if (token === "--persist-sessions") options.persistSessions = true;
     else args.push(token);
   }
+  options.specPath = specPath;
   return { specPath, args, options };
 }
 
@@ -132,8 +134,29 @@ export default function piWorkflow(pi: ExtensionAPI) {
         resumeRunId: runId,
         onlyBatches: [job.batchIndex],
         specPath: previous.specPath,
+        persistSessions: previous.persistSessions,
       });
       notify(ctx, `Retry ${batchId}: ${state.status}, new run=${state.runId}`, state.status === "completed" ? "info" : "warning");
+    },
+  });
+
+  pi.registerCommand("workflow-events", {
+    description: "Show recent workflow events: /workflow-events <runId> [limit]",
+    handler: async (args, ctx) => {
+      const [runId, limitText] = args.trim().split(/\s+/).filter(Boolean);
+      if (!runId) {
+        notify(ctx, "用法：/workflow-events <runId> [limit]", "warning");
+        return;
+      }
+      const limit = Math.max(1, Math.min(500, Number(limitText) || 100));
+      const events = await readRunEvents(ctx.cwd, runId, limit);
+      const lines = events.map((event) => {
+        const timestamp = String(event.timestamp || "").replace("T", " ").replace("Z", "");
+        const jobId = event.jobId ? ` ${String(event.jobId)}` : "";
+        const detail = event.error ? ` error=${String(event.error)}` : event.attempt ? ` attempt=${String(event.attempt)}` : "";
+        return `${timestamp} ${String(event.type || "event")}${jobId}${detail}`.trim();
+      });
+      ctx.ui.setWidget("pi-workflow-events", lines.length ? lines : ["No events found."]);
     },
   });
 
@@ -150,6 +173,7 @@ export default function piWorkflow(pi: ExtensionAPI) {
       timeoutMs: Type.Optional(Type.Integer({ minimum: 1 })),
       resumeRunId: Type.Optional(Type.String()),
       force: Type.Optional(Type.Boolean()),
+      persistSessions: Type.Optional(Type.Boolean()),
       dryRun: Type.Optional(Type.Boolean()),
     }),
     async execute(_toolCallId, params, _signal, onUpdate, ctx) {
@@ -161,6 +185,8 @@ export default function piWorkflow(pi: ExtensionAPI) {
         timeoutMs: params.timeoutMs,
         resumeRunId: params.resumeRunId,
         force: params.force,
+        persistSessions: params.persistSessions,
+        specPath: params.spec,
         dryRun: params.dryRun,
       };
       const state = await runWorkflow(pi, ctx, spec, (params.args || []) as WorkflowArgs, options);

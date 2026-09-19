@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
-import { mkdtemp, mkdir, readFile, rm } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
-import { readRunState, runWorkflow } from "../src/runner.ts";
+import { readRunEvents, readRunState, runWorkflow } from "../src/runner.ts";
 import type { WorkflowSpec } from "../src/types.ts";
 
 type Job = { id: string };
@@ -74,6 +74,19 @@ test("workflow lock prevents a second run unless force is requested", async () =
       runWorkflow({} as ExtensionAPI, testContext(cwd), demoSpec(), [], { dryRun: true }),
       /Workflow lock exists/,
     );
+  } finally {
+    await rm(cwd, { recursive: true, force: true });
+  }
+});
+
+test("readRunEvents returns the latest valid JSONL events", async () => {
+  const cwd = await mkdtemp(join(tmpdir(), "pi-agent-workflow-events-test-"));
+  try {
+    const dir = join(cwd, ".pi", "workflow-runs", "run-1");
+    await mkdir(dir, { recursive: true });
+    await writeFile(join(dir, "events.jsonl"), '{"type":"old"}\n{"type":"latest","jobId":"batch-001"}\npartial', "utf8");
+    const events = await readRunEvents(cwd, "run-1", 1);
+    assert.deepEqual(events, [{ type: "latest", jobId: "batch-001" }]);
   } finally {
     await rm(cwd, { recursive: true, force: true });
   }

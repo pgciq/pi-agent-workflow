@@ -20,6 +20,7 @@ export type ActiveWorkflow = {
   runId: string;
   controller: AbortController;
   sessions: Set<AgentSession>;
+  persistSessions: boolean;
   logQueue: Promise<void>;
   stateQueue: Promise<void>;
 };
@@ -198,15 +199,20 @@ async function runBatch<TJob, TResult>(
   });
   await resourceLoader.reload();
 
+  const sessionDir = join(runDirectory(ctx, active.runId), "sessions");
+  const sessionManager = active.persistSessions
+    ? (await mkdir(sessionDir, { recursive: true }), SessionManager.create(ctx.cwd, sessionDir, { id: `${jobState.jobId}-attempt-${jobState.attempt}` }))
+    : SessionManager.inMemory(ctx.cwd);
   const created = await createAgentSession({
     cwd: ctx.cwd,
     model,
     modelRuntime: runtime,
     resourceLoader,
-    sessionManager: SessionManager.inMemory(ctx.cwd),
+    sessionManager,
     tools: [],
   });
   const session = created.session;
+  jobState.childSessionFile = sessionManager.getSessionFile();
   active.sessions.add(session);
 
   const unsubscribe = session.subscribe((event) => {
@@ -250,6 +256,7 @@ export async function runWorkflow<TJob, TResult>(
     runId,
     controller: new AbortController(),
     sessions: new Set(),
+    persistSessions: options.persistSessions === true,
     logQueue: Promise.resolve(),
     stateQueue: Promise.resolve(),
   };
@@ -286,6 +293,7 @@ export async function runWorkflow<TJob, TResult>(
         questionCount: batch.length,
       })),
       specPath: options.specPath,
+      persistSessions: options.persistSessions === true,
     };
 
     const resultRecords: Map<number, TResult[]> = options.resumeRunId
@@ -445,4 +453,18 @@ export async function runWorkflow<TJob, TResult>(
 
 export async function readRunState(cwd: string, runId: string): Promise<WorkflowRunState> {
   return JSON.parse(await readFile(join(resolve(cwd, ".pi/workflow-runs", runId), "state.json"), "utf8")) as WorkflowRunState;
+}
+
+export async function readRunEvents(cwd: string, runId: string, limit = 100): Promise<Array<Record<string, unknown>>> {
+  const text = await readFile(join(resolve(cwd, ".pi/workflow-runs", runId), "events.jsonl"), "utf8");
+  const events: Array<Record<string, unknown>> = [];
+  for (const line of text.split(/\r?\n/).filter(Boolean)) {
+    try {
+      const event = JSON.parse(line) as Record<string, unknown>;
+      events.push(event);
+    } catch {
+      // Ignore a partially written final line.
+    }
+  }
+  return events.slice(-Math.max(1, limit));
 }
