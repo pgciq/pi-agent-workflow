@@ -1,0 +1,47 @@
+{
+  "name": "pi-agent-workflow",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Reusable Pi workflow extension with concurrent child AgentSessions and live monitoring",
+  "type": "module",
+  "license": "MIT",
+  "author": "Gary Pan <pgciq@126.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pgciq/pi-agent-workflow.git"
+  },
+  "homepage": "https://github.com/pgciq/pi-agent-workflow#readme",
+  "bugs": {
+    "url": "https://github.com/pgciq/pi-agent-workflow/issues"
+  },
+  "keywords": [
+    "pi",
+    "pi-coding-agent",
+    "workflow",
+    "agent",
+    "subagent",
+    "ai",
+    "typescript"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@earendil-works/pi-coding-agent": "^0.85.1",
+    "typebox": "^1.3.34"
+  },
+  "pi": {
+    "extensions": ["./extensions/pi-workflow.ts"]
+  },
+  "files": [
+    "extensions",
+    "src",
+    "examples",
+    "README.md",
+    "PLAN.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "pack:check": "npm pack --dry-run"
+  }
+}
