@@ -43,6 +43,9 @@ pi -e D:/dev/proj/repos/pi-agent-workflow/extensions/pi-workflow.ts
 ```text
 /workflow-run .pi/workflows/example.ts arg1 arg2
 /workflow-run .pi/workflows/example.ts 202609 --concurrency 4 --retries 2
+/workflow-run .pi/workflows/example.ts 202609 --timeout 3600000
+/workflow-run .pi/workflows/example.ts 202609 --resume <runId>
+/workflow-run .pi/workflows/example.ts 202609 --force
 /workflow-run .pi/workflows/example.ts 202609 --dry-run
 /workflow-status
 /workflow-status <runId>

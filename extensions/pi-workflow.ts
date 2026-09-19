@@ -3,7 +3,7 @@ import { pathToFileURL } from "node:url";
 import { join, resolve } from "node:path";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
-import { activeRuns, readRunState, runWorkflow } from "../src/runner.ts";
+import { activeRuns, cancelWorkflow, readRunState, runWorkflow } from "../src/runner.ts";
 import type { WorkflowArgs, WorkflowRunOptions, WorkflowSpec } from "../src/types.ts";
 
 type ParsedCommand = {
@@ -24,6 +24,9 @@ function parseCommand(raw: string): ParsedCommand {
     else if (token === "--concurrency" && tokens[i + 1]) options.concurrency = Number(tokens[++i]) || undefined;
     else if (token === "--retries" && tokens[i + 1]) options.retries = Number(tokens[++i]) || undefined;
     else if (token === "--batch-size" && tokens[i + 1]) options.batchSize = Number(tokens[++i]) || undefined;
+    else if (token === "--timeout" && tokens[i + 1]) options.timeoutMs = Math.max(0, Number(tokens[++i]) || 0);
+    else if (token === "--resume" && tokens[i + 1]) options.resumeRunId = tokens[++i];
+    else if (token === "--force") options.force = true;
     else args.push(token);
   }
   return { specPath, args, options };
@@ -73,7 +76,7 @@ export default function piWorkflow(pi: ExtensionAPI) {
           ctx.ui.setWidget("pi-workflow-status", [
             `${state.runId}: ${state.status}`,
             `${state.completedBatches}/${state.totalBatches} completed, failed=${state.failedBatches}`,
-            ...state.jobs.map((job) => `${job.status === "completed" ? "✓" : job.status === "failed" ? "✗" : "○"} ${job.jobId} ${job.status} attempt=${job.attempt} ${job.error || ""}`),
+            ...state.jobs.map((job) => `${job.status === "completed" ? "✓" : job.status === "failed" ? "✗" : job.status === "cancelled" ? "⊘" : "○"} ${job.jobId} ${job.status} attempt=${job.attempt} results=${job.resultCount ?? "-"} ${job.error || ""}`),
           ]);
           return;
         }
@@ -99,12 +102,10 @@ export default function piWorkflow(pi: ExtensionAPI) {
     description: "Cancel an active workflow: /workflow-cancel <runId>",
     handler: async (args, ctx) => {
       const runId = args.trim();
-      const controller = activeRuns.get(runId);
-      if (!controller) {
+      if (!runId || !(await cancelWorkflow(runId))) {
         notify(ctx, `No active workflow found: ${runId || "(missing runId)"}`, "warning");
         return;
       }
-      controller.abort();
       notify(ctx, `Cancellation requested: ${runId}`, "info");
     },
   });
@@ -119,6 +120,9 @@ export default function piWorkflow(pi: ExtensionAPI) {
       concurrency: Type.Optional(Type.Integer({ minimum: 1, maximum: 16 })),
       retries: Type.Optional(Type.Integer({ minimum: 0, maximum: 10 })),
       batchSize: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
+      timeoutMs: Type.Optional(Type.Integer({ minimum: 1 })),
+      resumeRunId: Type.Optional(Type.String()),
+      force: Type.Optional(Type.Boolean()),
       dryRun: Type.Optional(Type.Boolean()),
     }),
     async execute(_toolCallId, params, _signal, onUpdate, ctx) {
@@ -127,10 +131,13 @@ export default function piWorkflow(pi: ExtensionAPI) {
         concurrency: params.concurrency,
         retries: params.retries,
         batchSize: params.batchSize,
+        timeoutMs: params.timeoutMs,
+        resumeRunId: params.resumeRunId,
+        force: params.force,
         dryRun: params.dryRun,
       };
       const state = await runWorkflow(pi, ctx, spec, (params.args || []) as WorkflowArgs, options);
-      onUpdate?.({ content: [{ type: "text", text: `${state.workflow}: ${state.status}` }] });
+      onUpdate?.({ content: [{ type: "text", text: `${state.workflow}: ${state.status}` }], details: {} });
       return {
         content: [{ type: "text", text: `${state.workflow}: ${state.status}, completed=${state.completedBatches}/${state.totalBatches}, failed=${state.failedBatches}` }],
         details: state,

@@ -19,23 +19,23 @@
 
 ## 阶段 2：运行可靠性
 
-- [ ] 为每个运行增加 lock，防止同一 Spec 重复执行
-- [ ] 将结果按 batch 增量保存到 `results.jsonl`
-- [ ] 从 `state.json` 恢复中断运行
-- [ ] 让取消操作主动调用所有活动子 Session 的 `abort()`
-- [ ] 增加单 batch 超时和全局超时
-- [ ] 增加 API rate-limit/backoff
-- [ ] 处理父进程退出时的子 Session 清理
+- [x] 为每个运行增加 lock，防止同一 Spec 重复执行
+- [x] 将结果按 batch 增量保存到 `results.jsonl`
+- [x] 从 `results.jsonl` 恢复中断运行（`--resume`）
+- [x] 让取消操作主动调用所有活动子 Session 的 `abort()`
+- [x] 增加单 batch 超时和可选全局超时（`--timeout`）
+- [x] 增加指数退避和随机抖动
+- [x] 处理父进程退出/异常时的子 Session 清理
 
 ## 阶段 3：监控体验
 
-- [ ] Widget 显示最近运行的 batch，而不是固定前 20 个
+- [x] Widget 优先显示当前运行和最近活动 batch
 - [ ] 增加运行详情视图
-- [ ] 显示模型名、尝试次数、耗时、结果数量
+- [x] 显示尝试次数、耗时、结果数量
 - [ ] 增加 `/workflow-events <runId>`
 - [ ] 增加 `/workflow-retry <runId> [batchId]`
 - [ ] 可选保存完整 child session，默认仍使用 in-memory
-- [ ] 只显示模型输出预览，不显示隐藏思维过程
+- [x] 只显示模型输出预览，不显示隐藏思维过程
 
 ## 阶段 4：项目适配
 

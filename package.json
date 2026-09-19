@@ -1,6 +1,6 @@
 {
   "name": "pi-agent-workflow",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": false,
   "description": "Reusable Pi workflow extension with concurrent child AgentSessions and live monitoring",
   "type": "module",
@@ -44,6 +44,11 @@
     "LICENSE"
   ],
   "scripts": {
+    "check": "tsc --noEmit",
     "pack:check": "npm pack --dry-run"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.2",
+    "typescript": "^7.0.2"
   }
 }

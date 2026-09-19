@@ -28,13 +28,19 @@ export type WorkflowRunOptions = {
   concurrency?: number;
   retries?: number;
   batchSize?: number;
+  /** Maximum duration for the whole run. */
+  timeoutMs?: number;
+  /** Resume completed batches/results from a previous run. */
+  resumeRunId?: string;
+  /** Remove an existing workflow lock before starting. */
+  force?: boolean;
   dryRun?: boolean;
 };
 
 export type WorkflowJobState = {
   jobId: string;
   batchIndex: number;
-  status: "queued" | "running" | "retrying" | "completed" | "failed";
+  status: "queued" | "running" | "retrying" | "completed" | "failed" | "cancelled";
   attempt: number;
   questionCount: number;
   startedAt?: string;
@@ -42,6 +48,7 @@ export type WorkflowJobState = {
   elapsedMs?: number;
   lastEvent?: string;
   preview?: string;
+  resultCount?: number;
   error?: string;
 };
 
@@ -56,4 +63,5 @@ export type WorkflowRunState = {
   completedBatches: number;
   failedBatches: number;
   jobs: WorkflowJobState[];
+  resumedFrom?: string;
 };
